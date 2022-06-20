@@ -30,8 +30,7 @@ show_animation = True
 
 class MaxVelocityNotReached(Exception):
     def __init__(self, actual_vel, max_vel):
-        self.message = 'Actual velocity {} does not equal desired max velocity {}!'.format(
-            actual_vel, max_vel)
+        self.message = f'Actual velocity {actual_vel} does not equal desired max velocity {max_vel}!'
 
 
 class eta3_trajectory(Eta3Path):
@@ -47,7 +46,7 @@ class eta3_trajectory(Eta3Path):
         assert max_vel > 0 and v0 >= 0 and a0 >= 0 and max_accel > 0 and max_jerk > 0 \
             and a0 <= max_accel and v0 <= max_vel
         super(eta3_trajectory, self).__init__(segments=segments)
-        self.total_length = sum([s.segment_length for s in self.segments])
+        self.total_length = sum(s.segment_length for s in self.segments)
         self.max_vel = float(max_vel)
         self.v0 = float(v0)
         self.a0 = float(a0)
@@ -170,7 +169,7 @@ class eta3_trajectory(Eta3Path):
         try:
             assert np.isclose(self.vels[index], 0)
         except AssertionError as e:
-            print('The final velocity {} is not zero'.format(self.vels[index]))
+            print(f'The final velocity {self.vels[index]} is not zero')
             raise e
 
         self.seg_lengths[index] = s_sf
@@ -260,11 +259,7 @@ class eta3_trajectory(Eta3Path):
             ui = self.get_interp_param(
                 seg_id=seg_id, s=curr_segment_length, ui=self.ui_prev)
 
-        if not seg_id == self.prev_seg_id:
-            self.ui_prev = 0
-        else:
-            self.ui_prev = ui
-
+        self.ui_prev = 0 if seg_id != self.prev_seg_id else ui
         self.prev_seg_id = seg_id
         # compute angular velocity of current point= (ydd*xd - xdd*yd) / (xd**2 + yd**2)
         d = self.segments[seg_id].calc_deriv(ui, order=1)
@@ -287,23 +282,31 @@ class eta3_trajectory(Eta3Path):
 
         # combine path point with orientation and velocities
         pos = self.segments[seg_id].calc_point(ui)
-        state = np.array([pos[0], pos[1], np.arctan2(
-            d[1], d[0]), linear_velocity, angular_velocity])
-        return state
+        return np.array(
+            [
+                pos[0],
+                pos[1],
+                np.arctan2(d[1], d[0]),
+                linear_velocity,
+                angular_velocity,
+            ]
+        )
 
 
 def test1(max_vel=0.5):
 
     for i in range(10):
-        trajectory_segments = []
         # segment 1: lane-change curve
         start_pose = [0, 0, 0]
         end_pose = [4, 3.0, 0]
         # NOTE: The ordering on kappa is [kappa_A, kappad_A, kappa_B, kappad_B], with kappad_* being the curvature derivative
         kappa = [0, 0, 0, 0]
         eta = [i, i, 0, 0, 0, 0]
-        trajectory_segments.append(Eta3PathSegment(
-            start_pose=start_pose, end_pose=end_pose, eta=eta, kappa=kappa))
+        trajectory_segments = [
+            Eta3PathSegment(
+                start_pose=start_pose, end_pose=end_pose, eta=eta, kappa=kappa
+            )
+        ]
 
         traj = eta3_trajectory(trajectory_segments,
                                max_vel=max_vel, max_accel=0.5)
@@ -327,7 +330,6 @@ def test1(max_vel=0.5):
 def test2(max_vel=0.5):
 
     for i in range(10):
-        trajectory_segments = []
         # segment 1: lane-change curve
         start_pose = [0, 0, 0]
         end_pose = [4, 3.0, 0]
@@ -336,8 +338,11 @@ def test2(max_vel=0.5):
         # NOTE: INTEGRATOR ERROR EXPLODES WHEN eta[:1] IS ZERO!
         # was: eta = [0, 0, (i - 5) * 20, (5 - i) * 20, 0, 0], now is:
         eta = [0.1, 0.1, (i - 5) * 20, (5 - i) * 20, 0, 0]
-        trajectory_segments.append(Eta3PathSegment(
-            start_pose=start_pose, end_pose=end_pose, eta=eta, kappa=kappa))
+        trajectory_segments = [
+            Eta3PathSegment(
+                start_pose=start_pose, end_pose=end_pose, eta=eta, kappa=kappa
+            )
+        ]
 
         traj = eta3_trajectory(trajectory_segments,
                                max_vel=max_vel, max_accel=0.5)
@@ -359,16 +364,17 @@ def test2(max_vel=0.5):
 
 
 def test3(max_vel=2.0):
-    trajectory_segments = []
-
     # segment 1: lane-change curve
     start_pose = [0, 0, 0]
     end_pose = [4, 1.5, 0]
     # NOTE: The ordering on kappa is [kappa_A, kappad_A, kappa_B, kappad_B], with kappad_* being the curvature derivative
     kappa = [0, 0, 0, 0]
     eta = [4.27, 4.27, 0, 0, 0, 0]
-    trajectory_segments.append(Eta3PathSegment(
-        start_pose=start_pose, end_pose=end_pose, eta=eta, kappa=kappa))
+    trajectory_segments = [
+        Eta3PathSegment(
+            start_pose=start_pose, end_pose=end_pose, eta=eta, kappa=kappa
+        )
+    ]
 
     # segment 2: line segment
     start_pose = [4, 1.5, 0]

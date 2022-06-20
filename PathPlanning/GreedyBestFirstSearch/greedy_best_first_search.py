@@ -41,8 +41,7 @@ class BestFirstSearchPlanner:
             self.parent = parent
 
         def __str__(self):
-            return str(self.x) + "," + str(self.y) + "," + str(
-                self.cost) + "," + str(self.pind)
+            return (f"{str(self.x)},{str(self.y)},{str(self.cost)}" + ",") + str(self.pind)
 
     def planning(self, sx, sy, gx, gy):
         """
@@ -68,7 +67,7 @@ class BestFirstSearchPlanner:
         open_set[self.calc_grid_index(nstart)] = nstart
 
         while 1:
-            if len(open_set) == 0:
+            if not open_set:
                 print("Open set is empty..")
                 break
 
@@ -119,11 +118,12 @@ class BestFirstSearchPlanner:
                 if n_id in closed_set:
                     continue
 
-                if n_id not in open_set:
+                if (
+                    n_id in open_set
+                    and open_set[n_id].cost > node.cost
+                    or n_id not in open_set
+                ):
                     open_set[n_id] = node
-                else:
-                    if open_set[n_id].cost > node.cost:
-                        open_set[n_id] = node
         closed_set[ngoal.pind] = current
         rx, ry = self.calc_final_path(ngoal, closed_set)
         return rx, ry
@@ -143,8 +143,7 @@ class BestFirstSearchPlanner:
     @staticmethod
     def calc_heuristic(n1, n2):
         w = 1.0  # weight of heuristic
-        d = w * math.hypot(n1.x - n2.x, n1.y - n2.y)
-        return d
+        return w * math.hypot(n1.x - n2.x, n1.y - n2.y)
 
     def calc_grid_position(self, index, minp):
         """
@@ -154,8 +153,7 @@ class BestFirstSearchPlanner:
         :param minp:
         :return:
         """
-        pos = index * self.reso + minp
-        return pos
+        return index * self.reso + minp
 
     def calc_xyindex(self, position, min_pos):
         return round((position - min_pos) / self.reso)
@@ -167,15 +165,8 @@ class BestFirstSearchPlanner:
         px = self.calc_grid_position(node.x, self.minx)
         py = self.calc_grid_position(node.y, self.miny)
 
-        if px < self.minx:
+        if px < self.minx or py < self.miny or px >= self.maxx or py >= self.maxy:
             return False
-        elif py < self.miny:
-            return False
-        elif px >= self.maxx:
-            return False
-        elif py >= self.maxy:
-            return False
-
         # collision check
         if self.obmap[node.x][node.y]:
             return False
@@ -213,21 +204,20 @@ class BestFirstSearchPlanner:
 
     @staticmethod
     def get_motion_model():
-        # dx, dy, cost
-        motion = [[1, 0, 1],
-                  [0, 1, 1],
-                  [-1, 0, 1],
-                  [0, -1, 1],
-                  [-1, -1, math.sqrt(2)],
-                  [-1, 1, math.sqrt(2)],
-                  [1, -1, math.sqrt(2)],
-                  [1, 1, math.sqrt(2)]]
-
-        return motion
+        return [
+            [1, 0, 1],
+            [0, 1, 1],
+            [-1, 0, 1],
+            [0, -1, 1],
+            [-1, -1, math.sqrt(2)],
+            [-1, 1, math.sqrt(2)],
+            [1, -1, math.sqrt(2)],
+            [1, 1, math.sqrt(2)],
+        ]
 
 
 def main():
-    print(__file__ + " start!!")
+    print(f"{__file__} start!!")
 
     # start and goal position
     sx = 10.0  # [m]
@@ -254,7 +244,7 @@ def main():
     for i in range(-10, 40):
         ox.append(20.0)
         oy.append(i)
-    for i in range(0, 40):
+    for i in range(40):
         ox.append(40.0)
         oy.append(60.0 - i)
 

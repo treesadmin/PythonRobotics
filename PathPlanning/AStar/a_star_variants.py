@@ -87,7 +87,7 @@ def key_points(o_dict):
                 obs_count += 1
             if o_dict[(x + i3, y + j3)]:
                 obs_count += 1
-            if obs_count == 3 or obs_count == 1:
+            if obs_count in {3, 1}:
                 c_list.append((x, y))
                 if show_animation:
                     plt.plot(x, y, ".y")
@@ -154,10 +154,7 @@ class SearchAlgo:
         x, y = x1, y1
         val = 0
         while x != x2 or y != y2:
-            if x != x2 and y != y2:
-                val += 14
-            else:
-                val += 10
+            val += 14 if x != x2 and y != y2 else 10
             x, y = x + np.sign(x2 - x), y + np.sign(y2 - y)
         return val
 
@@ -242,9 +239,7 @@ class SearchAlgo:
                 plt.pause(0.001)
             if goal_found:
                 current_node = self.all_nodes[tuple(self.goal_pt)]
-            while goal_found:
-                if current_node['pred'] is None:
-                    break
+            while goal_found and current_node['pred'] is not None:
                 x = [current_node['pos'][0], current_node['pred'][0]]
                 y = [current_node['pos'][1], current_node['pred'][1]]
                 current_node = self.all_nodes[tuple(current_node['pred'])]

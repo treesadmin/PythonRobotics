@@ -57,27 +57,26 @@ class BipedalPlanner(object):
         px_star, py_star = px, py  # modified footstep position
         xi, xi_dot, yi, yi_dot = 0.0, 0.0, 0.01, 0.0
         time = 0.0
-        n = 0
         self.ref_p.append([px, py, 0])
         self.act_p.append([px, py, 0])
-        for i in range(len(self.ref_footsteps)):
+        for n, _ in enumerate(range(len(self.ref_footsteps)), start=1):
             # simulate x, y and those of dot of inverted pendulum
             xi, xi_dot, yi, yi_dot = self.inverted_pendulum(
                 xi, xi_dot, px_star, yi, yi_dot, py_star, z_c, t_sup)
 
             # update time
             time += t_sup
-            n += 1
-
             # calculate px, py, x_, y_, vx_, vy_
             f_x, f_y, f_theta = self.ref_footsteps[n - 1]
             rotate_mat = np.array([[math.cos(f_theta), -math.sin(f_theta)],
                                    [math.sin(f_theta), math.cos(f_theta)]])
 
-            if n == len(self.ref_footsteps):
-                f_x_next, f_y_next, f_theta_next = 0., 0., 0.
-            else:
-                f_x_next, f_y_next, f_theta_next = self.ref_footsteps[n]
+            f_x_next, f_y_next, f_theta_next = (
+                (0.0, 0.0, 0.0)
+                if n == len(self.ref_footsteps)
+                else self.ref_footsteps[n]
+            )
+
             rotate_mat_next = np.array(
                 [[math.cos(f_theta_next), -math.sin(f_theta_next)],
                  [math.sin(f_theta_next), math.cos(f_theta_next)]])

@@ -51,7 +51,7 @@ class VoronoiRoadMapPlanner:
         D = rr
         n_step = round(d / D)
 
-        for i in range(n_step):
+        for _ in range(n_step):
             dist, _ = obstacle_kd_tree.query([x, y])
             if dist <= rr:
                 return True  # collision
@@ -129,7 +129,7 @@ class VoronoiRoadMapPlanner:
 
 
 def main():
-    print(__file__ + " start!!")
+    print(f"{__file__} start!!")
 
     # start and goal position
     sx = 10.0  # [m]

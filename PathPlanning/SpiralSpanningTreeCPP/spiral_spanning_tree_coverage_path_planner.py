@@ -63,8 +63,13 @@ class SpiralSpanningTreeCoveragePlanner:
             elif dp == 2:
                 # special handle for non-adjacent route nodes
                 mid_node = self.get_intermediate_node(route[idx], route[idx+1])
-                path.append(self.move(route[idx], mid_node))
-                path.append(self.move(mid_node, route[idx+1]))
+                path.extend(
+                    (
+                        self.move(route[idx], mid_node),
+                        self.move(mid_node, route[idx + 1]),
+                    )
+                )
+
             else:
                 sys.exit('adjacent path node distance larger than 2')
 
@@ -221,7 +226,7 @@ class SpiralSpanningTreeCoveragePlanner:
                 q_ngb.add(m)
 
         itsc = p_ngb.intersection(q_ngb)
-        if len(itsc) == 0:
+        if not itsc:
             sys.exit('get_intermediate_node: \
                  no intermediate node between', p, q)
         elif len(itsc) == 1:

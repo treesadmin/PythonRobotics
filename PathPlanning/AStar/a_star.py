@@ -45,8 +45,9 @@ class AStarPlanner:
             self.parent_index = parent_index
 
         def __str__(self):
-            return str(self.x) + "," + str(self.y) + "," + str(
-                self.cost) + "," + str(self.parent_index)
+            return (f"{str(self.x)},{str(self.y)},{str(self.cost)}" + ",") + str(
+                self.parent_index
+            )
 
     def planning(self, sx, sy, gx, gy):
         """
@@ -72,7 +73,7 @@ class AStarPlanner:
         open_set[self.calc_grid_index(start_node)] = start_node
 
         while 1:
-            if len(open_set) == 0:
+            if not open_set:
                 print("Open set is empty..")
                 break
 
@@ -120,12 +121,13 @@ class AStarPlanner:
                 if n_id in closed_set:
                     continue
 
-                if n_id not in open_set:
-                    open_set[n_id] = node  # discovered a new node
-                else:
-                    if open_set[n_id].cost > node.cost:
-                        # This path is the best until now. record it
-                        open_set[n_id] = node
+                if (
+                    n_id in open_set
+                    and open_set[n_id].cost > node.cost
+                    or n_id not in open_set
+                ):
+                    # This path is the best until now. record it
+                    open_set[n_id] = node
 
         rx, ry = self.calc_final_path(goal_node, closed_set)
 
@@ -147,8 +149,7 @@ class AStarPlanner:
     @staticmethod
     def calc_heuristic(n1, n2):
         w = 1.0  # weight of heuristic
-        d = w * math.hypot(n1.x - n2.x, n1.y - n2.y)
-        return d
+        return w * math.hypot(n1.x - n2.x, n1.y - n2.y)
 
     def calc_grid_position(self, index, min_position):
         """
@@ -158,8 +159,7 @@ class AStarPlanner:
         :param min_position:
         :return:
         """
-        pos = index * self.resolution + min_position
-        return pos
+        return index * self.resolution + min_position
 
     def calc_xy_index(self, position, min_pos):
         return round((position - min_pos) / self.resolution)
@@ -171,15 +171,13 @@ class AStarPlanner:
         px = self.calc_grid_position(node.x, self.min_x)
         py = self.calc_grid_position(node.y, self.min_y)
 
-        if px < self.min_x:
+        if (
+            px < self.min_x
+            or py < self.min_y
+            or px >= self.max_x
+            or py >= self.max_y
+        ):
             return False
-        elif py < self.min_y:
-            return False
-        elif px >= self.max_x:
-            return False
-        elif py >= self.max_y:
-            return False
-
         # collision check
         if self.obstacle_map[node.x][node.y]:
             return False
@@ -217,21 +215,20 @@ class AStarPlanner:
 
     @staticmethod
     def get_motion_model():
-        # dx, dy, cost
-        motion = [[1, 0, 1],
-                  [0, 1, 1],
-                  [-1, 0, 1],
-                  [0, -1, 1],
-                  [-1, -1, math.sqrt(2)],
-                  [-1, 1, math.sqrt(2)],
-                  [1, -1, math.sqrt(2)],
-                  [1, 1, math.sqrt(2)]]
-
-        return motion
+        return [
+            [1, 0, 1],
+            [0, 1, 1],
+            [-1, 0, 1],
+            [0, -1, 1],
+            [-1, -1, math.sqrt(2)],
+            [-1, 1, math.sqrt(2)],
+            [1, -1, math.sqrt(2)],
+            [1, 1, math.sqrt(2)],
+        ]
 
 
 def main():
-    print(__file__ + " start!!")
+    print(f"{__file__} start!!")
 
     # start and goal position
     sx = 10.0  # [m]
@@ -258,7 +255,7 @@ def main():
     for i in range(-10, 40):
         ox.append(20.0)
         oy.append(i)
-    for i in range(0, 40):
+    for i in range(40):
         ox.append(40.0)
         oy.append(60.0 - i)
 

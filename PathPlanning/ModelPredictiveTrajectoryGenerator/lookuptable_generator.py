@@ -23,8 +23,7 @@ def calc_states_list():
     states = []
     for iyaw in yaw:
         for iy in y:
-            for ix in x:
-                states.append([ix, iy, iyaw])
+            states.extend([ix, iy, iyaw] for ix in x)
     print("nstate:", len(states))
 
     return states

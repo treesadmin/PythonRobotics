@@ -41,8 +41,9 @@ class BreadthFirstSearchPlanner:
             self.parent = parent
 
         def __str__(self):
-            return str(self.x) + "," + str(self.y) + "," + str(
-                self.cost) + "," + str(self.parent_index)
+            return (f"{str(self.x)},{str(self.y)},{str(self.cost)}" + ",") + str(
+                self.parent_index
+            )
 
     def planning(self, sx, sy, gx, gy):
         """
@@ -68,7 +69,7 @@ class BreadthFirstSearchPlanner:
         open_set[self.calc_grid_index(nstart)] = nstart
 
         while 1:
-            if len(open_set) == 0:
+            if not open_set:
                 print("Open set is empty..")
                 break
 
@@ -134,8 +135,7 @@ class BreadthFirstSearchPlanner:
         :param minp:
         :return:
         """
-        pos = index * self.reso + minp
-        return pos
+        return index * self.reso + minp
 
     def calc_xyindex(self, position, min_pos):
         return round((position - min_pos) / self.reso)
@@ -147,15 +147,8 @@ class BreadthFirstSearchPlanner:
         px = self.calc_grid_position(node.x, self.minx)
         py = self.calc_grid_position(node.y, self.miny)
 
-        if px < self.minx:
+        if px < self.minx or py < self.miny or px >= self.maxx or py >= self.maxy:
             return False
-        elif py < self.miny:
-            return False
-        elif px >= self.maxx:
-            return False
-        elif py >= self.maxy:
-            return False
-
         # collision check
         if self.obmap[node.x][node.y]:
             return False
@@ -193,21 +186,20 @@ class BreadthFirstSearchPlanner:
 
     @staticmethod
     def get_motion_model():
-        # dx, dy, cost
-        motion = [[1, 0, 1],
-                  [0, 1, 1],
-                  [-1, 0, 1],
-                  [0, -1, 1],
-                  [-1, -1, math.sqrt(2)],
-                  [-1, 1, math.sqrt(2)],
-                  [1, -1, math.sqrt(2)],
-                  [1, 1, math.sqrt(2)]]
-
-        return motion
+        return [
+            [1, 0, 1],
+            [0, 1, 1],
+            [-1, 0, 1],
+            [0, -1, 1],
+            [-1, -1, math.sqrt(2)],
+            [-1, 1, math.sqrt(2)],
+            [1, -1, math.sqrt(2)],
+            [1, 1, math.sqrt(2)],
+        ]
 
 
 def main():
-    print(__file__ + " start!!")
+    print(f"{__file__} start!!")
 
     # start and goal position
     sx = 10.0  # [m]
@@ -234,7 +226,7 @@ def main():
     for i in range(-10, 40):
         ox.append(20.0)
         oy.append(i)
-    for i in range(0, 40):
+    for i in range(40):
         ox.append(40.0)
         oy.append(60.0 - i)
 

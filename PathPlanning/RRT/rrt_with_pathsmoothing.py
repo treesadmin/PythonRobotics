@@ -82,7 +82,7 @@ def line_collision_check(first, second, obstacleList):
 def path_smoothing(path, max_iter, obstacle_list):
     le = get_path_length(path)
 
-    for i in range(max_iter):
+    for _ in range(max_iter):
         # Sample two points
         pickPoints = [random.uniform(0, le), random.uniform(0, le)]
         pickPoints.sort()
@@ -105,8 +105,7 @@ def path_smoothing(path, max_iter, obstacle_list):
         # Create New path
         newPath = []
         newPath.extend(path[:first[2] + 1])
-        newPath.append([first[0], first[1]])
-        newPath.append([second[0], second[1]])
+        newPath.extend(([first[0], first[1]], [second[0], second[1]]))
         newPath.extend(path[second[2] + 1:])
         path = newPath
         le = get_path_length(path)

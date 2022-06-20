@@ -240,11 +240,7 @@ def interpolate(ind, length, mode, max_curvature, origin_x, origin_y,
     elif mode == "R":  # right turn
         path_yaw[ind] = origin_yaw - length
 
-    if length > 0.0:
-        directions[ind] = 1
-    else:
-        directions[ind] = -1
-
+    directions[ind] = 1 if length > 0.0 else -1
     return path_x, path_y, path_yaw, directions
 
 
@@ -258,11 +254,7 @@ def generate_local_course(total_length, lengths, modes, max_curvature,
     directions = [0.0 for _ in range(n_point)]
     ind = 1
 
-    if lengths[0] > 0.0:
-        directions[0] = 1
-    else:
-        directions[0] = -1
-
+    directions[0] = 1 if lengths[0] > 0.0 else -1
     ll = 0.0
 
     for (m, length, i) in zip(modes, lengths, range(len(modes))):
@@ -277,11 +269,7 @@ def generate_local_course(total_length, lengths, modes, max_curvature,
         origin_x, origin_y, origin_yaw = p_x[ind], p_y[ind], p_yaw[ind]
 
         ind -= 1
-        if i >= 1 and (lengths[i - 1] * lengths[i]) > 0:
-            pd = - dist - ll
-        else:
-            pd = dist - ll
-
+        pd = - dist - ll if i >= 1 and (lengths[i - 1] * lengths[i]) > 0 else dist - ll
         while abs(pd) <= abs(length):
             ind += 1
             p_x, p_y, p_yaw, directions = interpolate(ind, pd, m,
@@ -331,25 +319,25 @@ def plot_arrow(x, y, yaw, length=1.0, width=0.5, fc="r",
 def main():
     print("Dubins path planner sample start!!")
 
-    start_x = 1.0  # [m]
-    start_y = 1.0  # [m]
-    start_yaw = np.deg2rad(45.0)  # [rad]
-
-    end_x = -3.0  # [m]
-    end_y = -3.0  # [m]
-    end_yaw = np.deg2rad(-45.0)  # [rad]
-
-    curvature = 1.0
-
-    path_x, path_y, path_yaw, mode, lengths = dubins_path_planning(start_x,
-                                                                   start_y,
-                                                                   start_yaw,
-                                                                   end_x,
-                                                                   end_y,
-                                                                   end_yaw,
-                                                                   curvature)
-
     if show_animation:
+        start_x = 1.0  # [m]
+        start_y = 1.0  # [m]
+        end_x = -3.0  # [m]
+        end_y = -3.0  # [m]
+        start_yaw = np.deg2rad(45.0)  # [rad]
+
+        end_yaw = np.deg2rad(-45.0)  # [rad]
+
+        curvature = 1.0
+
+        path_x, path_y, path_yaw, mode, lengths = dubins_path_planning(start_x,
+                                                                       start_y,
+                                                                       start_yaw,
+                                                                       end_x,
+                                                                       end_y,
+                                                                       end_yaw,
+                                                                       curvature)
+
         plt.plot(path_x, path_y, label="final course " + "".join(mode))
 
         # plotting

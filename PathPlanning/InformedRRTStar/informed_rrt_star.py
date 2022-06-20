@@ -63,7 +63,7 @@ class InformedRRTStar:
             [1.0, 1.0, np.linalg.det(U) * np.linalg.det(np.transpose(Vh))])),
                    Vh)
 
-        for i in range(self.max_iter):
+        for _ in range(self.max_iter):
             # Sample space is defined by cBest
             # cMin is the minimum distance between the start point and the goal
             # xCenter is the midpoint between the start and the goal
@@ -77,25 +77,23 @@ class InformedRRTStar:
             newNode = self.get_new_node(theta, n_ind, nearestNode)
             d = self.line_cost(nearestNode, newNode)
 
-            noCollision = self.check_collision(nearestNode, theta, d)
-
-            if noCollision:
+            if noCollision := self.check_collision(nearestNode, theta, d):
                 nearInds = self.find_near_nodes(newNode)
                 newNode = self.choose_parent(newNode, nearInds)
 
                 self.node_list.append(newNode)
                 self.rewire(newNode, nearInds)
 
-                if self.is_near_goal(newNode):
-                    if self.check_segment_collision(newNode.x, newNode.y,
-                                                    self.goal.x, self.goal.y):
-                        solutionSet.add(newNode)
-                        lastIndex = len(self.node_list) - 1
-                        tempPath = self.get_final_course(lastIndex)
-                        tempPathLen = self.get_path_len(tempPath)
-                        if tempPathLen < cBest:
-                            path = tempPath
-                            cBest = tempPathLen
+                if self.is_near_goal(newNode) and self.check_segment_collision(
+                    newNode.x, newNode.y, self.goal.x, self.goal.y
+                ):
+                    solutionSet.add(newNode)
+                    lastIndex = len(self.node_list) - 1
+                    tempPath = self.get_final_course(lastIndex)
+                    tempPathLen = self.get_path_len(tempPath)
+                    if tempPathLen < cBest:
+                        path = tempPath
+                        cBest = tempPathLen
             if animation:
                 self.draw_graph(xCenter=xCenter,
                                 cBest=cBest, cMin=cMin,
@@ -135,8 +133,7 @@ class InformedRRTStar:
         r = 50.0 * math.sqrt((math.log(n_node) / n_node))
         d_list = [(node.x - newNode.x) ** 2 + (node.y - newNode.y) ** 2
                   for node in self.node_list]
-        near_inds = [d_list.index(i) for i in d_list if i <= r ** 2]
-        return near_inds
+        return [d_list.index(i) for i in d_list if i <= r ** 2]
 
     def informed_sample(self, cMax, cMin, xCenter, C):
         if cMax < float('inf'):
@@ -165,13 +162,14 @@ class InformedRRTStar:
         return np.array([[sample[0]], [sample[1]], [0]])
 
     def sample_free_space(self):
-        if random.randint(0, 100) > self.goal_sample_rate:
-            rnd = [random.uniform(self.min_rand, self.max_rand),
-                   random.uniform(self.min_rand, self.max_rand)]
-        else:
-            rnd = [self.goal.x, self.goal.y]
-
-        return rnd
+        return (
+            [
+                random.uniform(self.min_rand, self.max_rand),
+                random.uniform(self.min_rand, self.max_rand),
+            ]
+            if random.randint(0, 100) > self.goal_sample_rate
+            else [self.goal.x, self.goal.y]
+        )
 
     @staticmethod
     def get_path_len(path):
@@ -194,8 +192,7 @@ class InformedRRTStar:
     def get_nearest_list_index(nodes, rnd):
         dList = [(node.x - rnd[0]) ** 2
                  + (node.y - rnd[1]) ** 2 for node in nodes]
-        minIndex = dList.index(min(dList))
-        return minIndex
+        return dList.index(min(dList))
 
     def get_new_node(self, theta, n_ind, nearestNode):
         newNode = copy.deepcopy(nearestNode)
@@ -283,10 +280,9 @@ class InformedRRTStar:
                 self.plot_ellipse(xCenter, cBest, cMin, e_theta)
 
         for node in self.node_list:
-            if node.parent is not None:
-                if node.x or node.y is not None:
-                    plt.plot([node.x, self.node_list[node.parent].x], [
-                        node.y, self.node_list[node.parent].y], "-g")
+            if node.parent is not None and (node.x or node.y is not None):
+                plt.plot([node.x, self.node_list[node.parent].x], [
+                    node.y, self.node_list[node.parent].y], "-g")
 
         for (ox, oy, size) in self.obstacle_list:
             plt.plot(ox, oy, "ok", ms=30 * size)

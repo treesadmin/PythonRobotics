@@ -96,9 +96,7 @@ def calc_uniform_polar_states(nxy, nh, d, a_min, a_max, p_min, p_max):
     """
 
     angle_samples = [i / (nxy - 1) for i in range(nxy)]
-    states = sample_states(angle_samples, a_min, a_max, d, p_max, p_min, nh)
-
-    return states
+    return sample_states(angle_samples, a_min, a_max, d, p_max, p_min, nh)
 
 
 def calc_biased_polar_states(goal_angle, ns, nxy, nh, d, a_min, a_max, p_min, p_max):
@@ -138,9 +136,7 @@ def calc_biased_polar_states(goal_angle, ns, nxy, nh, d, a_min, a_max, p_min, p_
                 li = ii - 1
                 break
 
-    states = sample_states(di, a_min, a_max, d, p_max, p_min, nh)
-
-    return states
+    return sample_states(di, a_min, a_max, d, p_max, p_min, nh)
 
 
 def calc_lane_states(l_center, l_heading, l_width, v_width, d, nxy):

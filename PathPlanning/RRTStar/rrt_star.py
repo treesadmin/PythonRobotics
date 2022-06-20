@@ -6,13 +6,14 @@ author: Atsushi Sakai(@Atsushi_twi)
 
 """
 
+
 import math
 import os
 import sys
 
 import matplotlib.pyplot as plt
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../RRT/")
+sys.path.append(f"{os.path.dirname(os.path.abspath(__file__))}/../RRT/")
 
 try:
     from rrt import RRT
@@ -79,9 +80,9 @@ class RRTStar(RRT):
 
             if self.check_collision(new_node, self.obstacle_list):
                 near_inds = self.find_near_nodes(new_node)
-                node_with_updated_parent = self.choose_parent(
-                    new_node, near_inds)
-                if node_with_updated_parent:
+                if node_with_updated_parent := self.choose_parent(
+                    new_node, near_inds
+                ):
                     self.rewire(node_with_updated_parent, near_inds)
                     self.node_list.append(node_with_updated_parent)
                 else:
@@ -162,12 +163,10 @@ class RRTStar(RRT):
         if not safe_goal_inds:
             return None
 
-        min_cost = min([self.node_list[i].cost for i in safe_goal_inds])
-        for i in safe_goal_inds:
-            if self.node_list[i].cost == min_cost:
-                return i
-
-        return None
+        min_cost = min(self.node_list[i].cost for i in safe_goal_inds)
+        return next(
+            (i for i in safe_goal_inds if self.node_list[i].cost == min_cost), None
+        )
 
     def find_near_nodes(self, new_node):
         """
@@ -192,8 +191,7 @@ class RRTStar(RRT):
             r = min(r, self.expand_dis)
         dist_list = [(node.x - new_node.x)**2 + (node.y - new_node.y)**2
                      for node in self.node_list]
-        near_inds = [dist_list.index(i) for i in dist_list if i <= r**2]
-        return near_inds
+        return [dist_list.index(i) for i in dist_list if i <= r**2]
 
     def rewire(self, new_node, near_inds):
         """
@@ -244,7 +242,7 @@ class RRTStar(RRT):
 
 
 def main():
-    print("Start " + __file__)
+    print(f"Start {__file__}")
 
     # ====Search Path with RRT====
     obstacle_list = [

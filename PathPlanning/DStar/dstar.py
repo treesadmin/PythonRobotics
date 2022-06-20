@@ -57,9 +57,7 @@ class Map:
     def init_map(self):
         map_list = []
         for i in range(self.row):
-            tmp = []
-            for j in range(self.col):
-                tmp.append(State(i, j))
+            tmp = [State(i, j) for j in range(self.col)]
             map_list.append(tmp)
         return map_list
 
@@ -114,26 +112,18 @@ class Dstar:
                 if y.t == "new" or y.parent == x and y.h != x.h + x.cost(y):
                     y.parent = x
                     self.insert(y, x.h + x.cost(y))
-                else:
-                    if y.parent != x and y.h > x.h + x.cost(y):
-                        self.insert(y, x.h)
-                    else:
-                        if y.parent != x and x.h > y.h + x.cost(y) \
+                elif y.parent != x and y.h > x.h + x.cost(y):
+                    self.insert(y, x.h)
+                elif y.parent != x and x.h > y.h + x.cost(y) \
                                 and y.t == "close" and y.h > k_old:
-                            self.insert(y, y.h)
+                    self.insert(y, y.h)
         return self.get_kmin()
 
     def min_state(self):
-        if not self.open_list:
-            return None
-        min_state = min(self.open_list, key=lambda x: x.k)
-        return min_state
+        return min(self.open_list, key=lambda x: x.k) if self.open_list else None
 
     def get_kmin(self):
-        if not self.open_list:
-            return -1
-        k_min = min([x.k for x in self.open_list])
-        return k_min
+        return min(x.k for x in self.open_list) if self.open_list else -1
 
     def insert(self, state, h_new):
         if state.t == "new":
@@ -214,11 +204,11 @@ def main():
     for i in range(-10, 40):
         ox.append(20)
         oy.append(i)
-    for i in range(0, 40):
+    for i in range(40):
         ox.append(40)
         oy.append(60 - i)
-    print([(i, j) for i, j in zip(ox, oy)])
-    m.set_obstacle([(i, j) for i, j in zip(ox, oy)])
+    print(list(zip(ox, oy)))
+    m.set_obstacle(list(zip(ox, oy)))
 
     start = [10, 10]
     goal = [50, 50]

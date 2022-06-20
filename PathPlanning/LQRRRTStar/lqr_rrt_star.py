@@ -5,6 +5,7 @@ Path planning code with LQR RRT*
 author: AtsushiSakai(@Atsushi_twi)
 
 """
+
 import copy
 import math
 import os
@@ -14,8 +15,8 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../LQRPlanner/")
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../RRTStar/")
+sys.path.append(f"{os.path.dirname(os.path.abspath(__file__))}/../LQRPlanner/")
+sys.path.append(f"{os.path.dirname(os.path.abspath(__file__))}/../RRTStar/")
 
 try:
     from LQRplanner import LQRPlanner
@@ -86,14 +87,12 @@ class LQRRRTStar(RRTStar):
                 self.draw_graph(rnd)
 
             if (not search_until_max_iter) and new_node:  # check reaching the goal
-                last_index = self.search_best_goal_node()
-                if last_index:
+                if last_index := self.search_best_goal_node():
                     return self.generate_final_course(last_index)
 
         print("reached max iteration")
 
-        last_index = self.search_best_goal_node()
-        if last_index:
+        if last_index := self.search_best_goal_node():
             return self.generate_final_course(last_index)
         else:
             print("Cannot find path")
@@ -127,12 +126,8 @@ class LQRRRTStar(RRTStar):
         if not goal_inds:
             return None
 
-        min_cost = min([self.node_list[i].cost for i in goal_inds])
-        for i in goal_inds:
-            if self.node_list[i].cost == min_cost:
-                return i
-
-        return None
+        min_cost = min(self.node_list[i].cost for i in goal_inds)
+        return next((i for i in goal_inds if self.node_list[i].cost == min_cost), None)
 
     def calc_new_cost(self, from_node, to_node):
 
@@ -148,22 +143,25 @@ class LQRRRTStar(RRTStar):
 
     def get_random_node(self):
 
-        if random.randint(0, 100) > self.goal_sample_rate:
-            rnd = self.Node(random.uniform(self.min_rand, self.max_rand),
-                            random.uniform(self.min_rand, self.max_rand)
-                            )
-        else:  # goal point sampling
-            rnd = self.Node(self.end.x, self.end.y)
-
-        return rnd
+        return (
+            self.Node(
+                random.uniform(self.min_rand, self.max_rand),
+                random.uniform(self.min_rand, self.max_rand),
+            )
+            if random.randint(0, 100) > self.goal_sample_rate
+            else self.Node(self.end.x, self.end.y)
+        )
 
     def generate_final_course(self, goal_index):
         print("final")
         path = [[self.end.x, self.end.y]]
         node = self.node_list[goal_index]
         while node.parent:
-            for (ix, iy) in zip(reversed(node.path_x), reversed(node.path_y)):
-                path.append([ix, iy])
+            path.extend(
+                [ix, iy]
+                for ix, iy in zip(reversed(node.path_x), reversed(node.path_y))
+            )
+
             node = node.parent
         path.append([self.start.x, self.start.y])
         return path
@@ -200,14 +198,14 @@ class LQRRRTStar(RRTStar):
         newNode.y = py[-1]
         newNode.path_x = px
         newNode.path_y = py
-        newNode.cost += sum([abs(c) for c in course_lens])
+        newNode.cost += sum(abs(c) for c in course_lens)
         newNode.parent = from_node
 
         return newNode
 
 
 def main(maxIter=200):
-    print("Start " + __file__)
+    print(f"Start {__file__}")
 
     # ====Search Path with RRT====
     obstacleList = [

@@ -60,9 +60,7 @@ class LShapeFitting:
         c1_min = min(c1)
         c2_min = min(c2)
 
-        alpha = -(c1_max - c1_min) * (c2_max - c2_min)
-
-        return alpha
+        return -(c1_max - c1_min) * (c2_max - c2_min)
 
     def _calc_closeness_criterion(self, c1, c2):
         c1_max = max(c1)
@@ -74,9 +72,7 @@ class LShapeFitting:
         D1 = np.minimum(c1_max - c1, c1 - c1_min)
         D2 = np.minimum(c2_max - c2, c2 - c2_min)
         d = np.maximum(np.minimum(D1, D2), self.min_dist_of_closeness_criteria)
-        beta = (1.0 / d).sum()
-
-        return beta
+        return (1.0 / d).sum()
 
     @staticmethod
     def _calc_variance_criterion(c1, c2):
@@ -92,9 +88,7 @@ class LShapeFitting:
         E2 = D2[D1 >= D2]
         V1 = - np.var(E1) if len(E1) > 0 else 0.
         V2 = - np.var(E2) if len(E2) > 0 else 0.
-        gamma = V1 + V2
-
-        return gamma
+        return V1 + V2
 
     def _rectangle_search(self, x, y):
 
@@ -188,7 +182,9 @@ class RectangleData:
     def calc_rect_contour(self):
 
         self.rect_c_x[0], self.rect_c_y[0] = self.calc_cross_point(
-            self.a[0:2], self.b[0:2], self.c[0:2])
+            self.a[:2], self.b[:2], self.c[:2]
+        )
+
         self.rect_c_x[1], self.rect_c_y[1] = self.calc_cross_point(
             self.a[1:3], self.b[1:3], self.c[1:3])
         self.rect_c_x[2], self.rect_c_y[2] = self.calc_cross_point(

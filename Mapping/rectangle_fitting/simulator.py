@@ -50,23 +50,21 @@ class VehicleSimulator:
 
     def _calc_vehicle_contour(self):
 
-        self.vc_x = []
-        self.vc_y = []
+        self.vc_x = [
+            self.L / 2.0,
+            self.L / 2.0,
+            -self.L / 2.0,
+            -self.L / 2.0,
+            self.L / 2.0,
+        ]
 
-        self.vc_x.append(self.L / 2.0)
-        self.vc_y.append(self.W / 2.0)
-
-        self.vc_x.append(self.L / 2.0)
-        self.vc_y.append(-self.W / 2.0)
-
-        self.vc_x.append(-self.L / 2.0)
-        self.vc_y.append(-self.W / 2.0)
-
-        self.vc_x.append(-self.L / 2.0)
-        self.vc_y.append(self.W / 2.0)
-
-        self.vc_x.append(self.L / 2.0)
-        self.vc_y.append(self.W / 2.0)
+        self.vc_y = [
+            self.W / 2.0,
+            -self.W / 2.0,
+            -self.W / 2.0,
+            self.W / 2.0,
+            self.W / 2.0,
+        ]
 
         self.vc_x, self.vc_y = self._interpolate(self.vc_x, self.vc_y)
 

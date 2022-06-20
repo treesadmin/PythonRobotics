@@ -427,7 +427,7 @@ class SCProblem:
 
     def __init__(self, m, K):
         # Variables:
-        self.var = dict()
+        self.var = {}
         self.var['X'] = cvxpy.Variable((m.n_x, K))
         self.var['U'] = cvxpy.Variable((m.n_u, K))
         self.var['sigma'] = cvxpy.Variable(nonneg=True)
@@ -436,7 +436,7 @@ class SCProblem:
         self.var['sigma_norm'] = cvxpy.Variable(nonneg=True)
 
         # Parameters:
-        self.par = dict()
+        self.par = {}
         self.par['A_bar'] = cvxpy.Parameter((m.n_x * m.n_x, K - 1))
         self.par['B_bar'] = cvxpy.Parameter((m.n_x * m.n_u, K - 1))
         self.par['C_bar'] = cvxpy.Parameter((m.n_x * m.n_u, K - 1))
@@ -527,9 +527,8 @@ class SCProblem:
     def get_variable(self, name):
         if name in self.var:
             return self.var[name].value
-        else:
-            print(f'Variable \'{name}\' does not exist.')
-            return None
+        print(f'Variable \'{name}\' does not exist.')
+        return None
 
     def solve(self, **kwargs):
         error = False
@@ -541,14 +540,12 @@ class SCProblem:
 
         stats = self.prob.solver_stats
 
-        info = {
+        return {
             'setup_time': stats.setup_time,
             'solver_time': stats.solve_time,
             'iterations': stats.num_iters,
-            'solver_error': error
+            'solver_error': error,
         }
-
-        return info
 
 
 def axis3d_equal(X, Y, Z, ax):

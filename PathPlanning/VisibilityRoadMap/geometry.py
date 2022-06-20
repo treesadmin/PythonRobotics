@@ -9,10 +9,12 @@ class Geometry:
     def is_seg_intersect(p1, q1, p2, q2):
 
         def on_segment(p, q, r):
-            if ((q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
-                    (q.y <= max(p.y, r.y)) and (q.y >= min(p.y, r.y))):
-                return True
-            return False
+            return (
+                q.x <= max(p.x, r.x)
+                and q.x >= min(p.x, r.x)
+                and q.y <= max(p.y, r.y)
+                and q.y >= min(p.y, r.y)
+            )
 
         def orientation(p, q, r):
             val = (float(q.y - p.y) * (r.x - q.x)) - (

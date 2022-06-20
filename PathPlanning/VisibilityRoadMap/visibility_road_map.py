@@ -61,17 +61,15 @@ class VisibilityRoadMap:
             cvx_list, cvy_list = self.calc_vertexes_in_configuration_space(
                 obstacle.x_list, obstacle.y_list)
 
-            for (vx, vy) in zip(cvx_list, cvy_list):
-                nodes.append(DijkstraSearch.Node(vx, vy))
-
+            nodes.extend(DijkstraSearch.Node(vx, vy) for vx, vy in zip(cvx_list, cvy_list))
         for node in nodes:
             plt.plot(node.x, node.y, "xr")
 
         return nodes
 
     def calc_vertexes_in_configuration_space(self, x_list, y_list):
-        x_list = x_list[0:-1]
-        y_list = y_list[0:-1]
+        x_list = x_list[:-1]
+        y_list = y_list[:-1]
         cvx_list, cvy_list = [], []
 
         n_data = len(x_list)
@@ -98,11 +96,11 @@ class VisibilityRoadMap:
                             target_node.y - node.y) <= 0.1:
                     continue
 
-                is_valid = True
-                for obstacle in obstacles:
-                    if not self.is_edge_valid(target_node, node, obstacle):
-                        is_valid = False
-                        break
+                is_valid = all(
+                    self.is_edge_valid(target_node, node, obstacle)
+                    for obstacle in obstacles
+                )
+
                 if is_valid:
                     road_map_info.append(node_id)
 
@@ -158,9 +156,12 @@ class ObstaclePolygon:
 
     def is_clockwise(self):
         n_data = len(self.x_list)
-        eval_sum = sum([(self.x_list[i + 1] - self.x_list[i]) *
-                        (self.y_list[i + 1] + self.y_list[i])
-                        for i in range(n_data - 1)])
+        eval_sum = sum(
+            (self.x_list[i + 1] - self.x_list[i])
+            * (self.y_list[i + 1] + self.y_list[i])
+            for i in range(n_data - 1)
+        )
+
         eval_sum += (self.x_list[0] - self.x_list[n_data - 1]) * \
                     (self.y_list[0] + self.y_list[n_data - 1])
         return eval_sum >= 0
@@ -179,7 +180,7 @@ class ObstaclePolygon:
 
 
 def main():
-    print(__file__ + " start!!")
+    print(f"{__file__} start!!")
 
     # start and goal position
     sx, sy = 10.0, 10.0  # [m]

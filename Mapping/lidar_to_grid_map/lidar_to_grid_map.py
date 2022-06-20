@@ -137,25 +137,21 @@ def flood_fill(center_point, occupancy_map):
         n = fringe.pop()
         nx, ny = n
         # West
-        if nx > 0:
-            if occupancy_map[nx - 1, ny] == 0.5:
-                occupancy_map[nx - 1, ny] = 0.0
-                fringe.appendleft((nx - 1, ny))
+        if nx > 0 and occupancy_map[nx - 1, ny] == 0.5:
+            occupancy_map[nx - 1, ny] = 0.0
+            fringe.appendleft((nx - 1, ny))
         # East
-        if nx < sx - 1:
-            if occupancy_map[nx + 1, ny] == 0.5:
-                occupancy_map[nx + 1, ny] = 0.0
-                fringe.appendleft((nx + 1, ny))
+        if nx < sx - 1 and occupancy_map[nx + 1, ny] == 0.5:
+            occupancy_map[nx + 1, ny] = 0.0
+            fringe.appendleft((nx + 1, ny))
         # North
-        if ny > 0:
-            if occupancy_map[nx, ny - 1] == 0.5:
-                occupancy_map[nx, ny - 1] = 0.0
-                fringe.appendleft((nx, ny - 1))
+        if ny > 0 and occupancy_map[nx, ny - 1] == 0.5:
+            occupancy_map[nx, ny - 1] = 0.0
+            fringe.appendleft((nx, ny - 1))
         # South
-        if ny < sy - 1:
-            if occupancy_map[nx, ny + 1] == 0.5:
-                occupancy_map[nx, ny + 1] = 0.0
-                fringe.appendleft((nx, ny + 1))
+        if ny < sy - 1 and occupancy_map[nx, ny + 1] == 0.5:
+            occupancy_map[nx, ny + 1] = 0.0
+            fringe.appendleft((nx, ny + 1))
 
 
 def generate_ray_casting_grid_map(ox, oy, xy_resolution, breshen=True):

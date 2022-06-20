@@ -70,10 +70,7 @@ def calc_gaussian_observation_pdf(grid_map, z, iz, ix, iy, std):
     y = iy * grid_map.xy_resolution + grid_map.min_y
     d = math.hypot(x - z[iz, 1], y - z[iz, 2])
 
-    # likelihood
-    pdf = norm.pdf(d - z[iz, 0], 0.0, std)
-
-    return pdf
+    return norm.pdf(d - z[iz, 0], 0.0, std)
 
 
 def observation_update(grid_map, z, std):
@@ -91,8 +88,7 @@ def observation_update(grid_map, z, std):
 def calc_control_input():
     v = 1.0  # [m/s]
     yaw_rate = 0.1  # [rad/s]
-    u = np.array([v, yaw_rate]).reshape(2, 1)
-    return u
+    return np.array([v, yaw_rate]).reshape(2, 1)
 
 
 def motion_model(x, u):
@@ -112,7 +108,7 @@ def motion_model(x, u):
 
 
 def draw_heat_map(data, mx, my):
-    max_value = max([max(i_data) for i_data in data])
+    max_value = max(max(i_data) for i_data in data)
     plt.grid(False)
     plt.pcolor(mx, my, data, vmax=max_value, cmap=plt.cm.get_cmap("Blues"))
     plt.axis("equal")
@@ -142,7 +138,7 @@ def observation(xTrue, u, RFID):
 
 
 def normalize_probability(grid_map):
-    sump = sum([sum(i_data) for i_data in grid_map.data])
+    sump = sum(sum(i_data) for i_data in grid_map.data)
 
     for ix in range(grid_map.x_w):
         for iy in range(grid_map.y_w):
@@ -216,7 +212,7 @@ def calc_grid_index(grid_map):
 
 
 def main():
-    print(__file__ + " start!!")
+    print(f"{__file__} start!!")
 
     # RF_ID positions [x, y]
     RF_ID = np.array([[10.0, 0.0],
@@ -254,7 +250,7 @@ def main():
                 plt.plot([xTrue[0, 0], z[i, 1]],
                          [xTrue[1, 0], z[i, 2]],
                          "-k")
-            plt.title("Time[s]:" + str(time)[0: 4])
+            plt.title("Time[s]:" + str(time)[:4])
             plt.pause(0.1)
 
     print("Done")
